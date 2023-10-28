@@ -1,38 +1,60 @@
+:root {
+    --page-padding: 20px;
+    --maze-width: 60%;
+    --maze-height: 100%;
+    /* Set the desired page padding value */
+}
+
+@font-face {
+  font-family: 'MazeLine';
+  
+  src: local('zlabyrinths-eye-fs'), url(./fonts/zlabyrinths-eye-fs.ttf) format('truetype');
+}
+
 .App {
-  text-align: center;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    border: 0;
+    overflow: hidden;
+    font: 1.5em 'MazeLine';
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.Container {
+    padding: var(--page-padding);
+    /* Add padding to the entire page */
+    width: calc(100vw - 2 * var(--page-padding));
+    height: calc(100vh - 2 * var(--page-padding));
+    display: inline-flex;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.Maze {
+    width: 60%;
+    height: 100%;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.Left {
+    width: 40%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
 }
 
-.App-link {
-  color: #61dafb;
-}
+/* Media query adjustments for smaller screens */
+@media only screen and (max-width: 600px) {
+    .App{
+        flex-direction: column;
+    }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    .Maze {
+        width: 100%;
+        height: 60%;
+    }
+
+    .Left {
+        width: 100%;
+        height: 40%;
+        justify-content: flex-start;
+    }
 }

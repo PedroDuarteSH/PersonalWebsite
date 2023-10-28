@@ -1,0 +1,173 @@
+import React, { useState, useEffect } from "react";
+import Block from "./Block";
+import { Grid } from "@mui/material";
+import Cell from "./Cell";
+
+const Maze = () => {
+    const num_rows = 20;
+    const num_cols = 20;
+    const maze_width = 300;
+    const maze_height = 300;
+    const cell_width = maze_width / num_cols;
+    const cell_height = maze_height / num_rows;
+
+    const [maze, setMaze] = useState(
+        Array(num_rows)
+            .fill(null)
+            .map((_, i) =>
+                Array(num_cols)
+                    .fill(null)
+                    .map((_, j) => new Cell(i, j))
+            )
+    );
+
+    function restartMaze(){
+        setMaze(Array(num_rows)
+        .fill(null)
+        .map((_, i) =>
+            Array(num_cols)
+                .fill(null)
+                .map((_, j) => new Cell(i, j))
+        ));
+        setLastDrawnPos({ x: Math.floor(num_rows / 2), y: 0 });
+    }
+
+
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [last_drawn_pos, setLastDrawnPos] = useState({ x: Math.floor(num_rows / 2), y: 0 });
+    
+    const handleMouseDown = () => {
+        setIsDrawing(true);
+      };
+    
+      const handleMouseUp = () => {
+        setIsDrawing(false);
+      };
+    
+      const handleMouseEnter = (x, y) => {
+        if (isDrawing) {
+            if (last_drawn_pos.x === x && last_drawn_pos.y === y) {
+                return;
+            }
+           
+            var go_x = Math.abs(last_drawn_pos.x - x);
+            var go_y = Math.abs(last_drawn_pos.y - y);
+            console.log(go_x, go_y)
+            if(go_x <= 1 && go_y <= 1 && go_x + go_y <=  1){
+                console.log("Enter")
+                const updatedMaze = [...maze];
+                updatedMaze[x][y].color = "red";
+                setLastDrawnPos({ x: x, y: y });
+                setMaze(updatedMaze);
+                
+            }        
+        }
+      };
+    
+
+    const start = `${Math.floor(num_rows / 2)}0`;
+    const end = `${Math.floor(num_rows / 2)}${num_cols - 1}`;
+
+
+    function randomDirections() {
+        var list_of_directions = [];
+        while (true) {
+            var dir = Math.floor(Math.random() * 4);
+            if (!(list_of_directions.includes(dir))) {
+                list_of_directions.push(dir);
+            }
+            if (list_of_directions.length === 4) {
+                break;
+            }
+        }
+        return list_of_directions;
+    }
+    function randomizedDFS(x, y) {
+        var list = randomDirections();
+        list.forEach(element => {
+            var next_x = x;
+            var next_y = y;
+            switch (element) {
+                case 0:
+                    next_x -= 1;
+                    if (next_x >= 0) {
+                        if (maze[next_x][next_y].visited === false) {
+                            maze[next_x][next_y].visited = true;
+                            maze[x][y].border.top = 0;
+                            maze[next_x][next_y].border.bottom = 0;
+                            randomizedDFS(next_x, next_y);
+                        }
+                    }
+                    break;
+                case 1:
+                    next_x += 1;
+                    if (next_x < num_cols) {
+                        if (maze[next_x][next_y].visited === false) {
+                            maze[next_x][next_y].visited = true;
+                            maze[x][y].border.bottom = 0;
+                            maze[next_x][next_y].border.top = 0;
+                            randomizedDFS(next_x, next_y);
+                        }
+                    }
+                    break;
+                case 2:
+                    next_y -= 1;
+                    if (next_y >= 0) {
+                        if (maze[next_x][next_y].visited === false) {
+                            maze[next_x][next_y].visited = true;
+                            maze[x][y].border.left = 0;
+                            maze[next_x][next_y].border.right = 0;
+                            randomizedDFS(next_x, next_y);
+
+                        }
+                    }
+                    break;
+                case 3:
+                    next_y += 1;
+                    if (next_y < num_rows) {
+                        if (maze[next_x][next_y].visited === false) {
+                            maze[next_x][next_y].visited = true;
+                            maze[x][y].border.right = 0;
+                            maze[next_x][next_y].border.left = 0;
+                            randomizedDFS(next_x, next_y);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+
+    }
+    randomizedDFS(Math.floor(num_rows / 2), 0);
+
+    return (
+        <div tabIndex={0} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+          <Grid className="MazeGrid" container width={maze_width}>
+            {maze.map((row, rowIndex) => (
+              row.map((item, colIndex) => (
+                <Grid
+                  key={`${rowIndex}-${colIndex}`}
+                  item
+                  sx={{ width: cell_width, height: cell_height }}
+                  onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
+                >
+                  <Block
+                    cell={item}
+                    width={cell_width}
+                    height={cell_height}
+                    start={start}
+                    end={end}
+    
+                  />
+                </Grid>
+              ))
+            ))}
+          </Grid>
+
+        </div>
+      );
+    };
+    
+    export default Maze;
+   
