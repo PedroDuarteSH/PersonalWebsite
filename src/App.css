@@ -1,9 +1,3 @@
-:root {
-    --page-padding: 20px;
-    --maze-width: 60%;
-    --maze-height: 100%;
-    /* Set the desired page padding value */
-}
 
 @font-face {
   font-family: 'MazeLine';
@@ -12,49 +6,27 @@
 }
 
 .App {
-    height: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font: 1em "MazeLine";
+}
+
+.container{
+    height: 700px;
     width: 100%;
     display: flex;
-    border: 0;
-    overflow: hidden;
-    font: 1.5em 'MazeLine';
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
-.Container {
-    padding: var(--page-padding);
-    /* Add padding to the entire page */
-    width: calc(100vw - 2 * var(--page-padding));
-    height: calc(100vh - 2 * var(--page-padding));
-    display: inline-flex;
+.information {
+    padding-left: 20px;
+    align-items: start;
+    flex-direction: row;
+    align-self: end;
 }
 
-.Maze {
-    width: 60%;
-    height: 100%;
-}
-
-.Left {
-    width: 40%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid black;
-}
-
-/* Media query adjustments for smaller screens */
-@media only screen and (max-width: 600px) {
-    .App{
-        flex-direction: column;
-    }
-
-    .Maze {
-        width: 100%;
-        height: 60%;
-    }
-
-    .Left {
-        width: 100%;
-        height: 40%;
-        justify-content: flex-start;
-    }
-}

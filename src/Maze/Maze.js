@@ -3,11 +3,11 @@ import React, { useState, useEffect } from "react";
 import Cell from "./Cell";
 import { useRef } from "react";
 import Logo from "../logo.svg";
-import Start from "../images/start.png"
-import Facebook from "../images/facebook.png"
-import Linkdin from "../images/linkdin.png"
-import GitHub from "../images/github.png"
-import Instagram from "../images/instagram.png"
+import Start from "../images/start.png";
+import Facebook from "../images/facebook.png";
+import Linkdin from "../images/linkdin.png";
+import GitHub from "../images/github.png";
+import Instagram from "../images/instagram.png";
 const Maze = () => {
   // Maze Settings
   const num_rows = 20;
@@ -15,10 +15,16 @@ const Maze = () => {
   const num_images = 5;
 
   const [images] = useState([Start, Facebook, Linkdin, GitHub, Instagram]);
-    const[url] = useState([null, "https://www.facebook.com/PDSH123/", "https://www.linkedin.com/in/pedroduartesh/", "https://github.com/pedroDuarteSH/", "https://www.instagram.com/pedro_._duarte/"])
+  const [url] = useState([
+    null,
+    "https://www.facebook.com/PDSH123/",
+    "https://www.linkedin.com/in/pedroduartesh/",
+    "https://github.com/pedroDuarteSH/",
+    "https://www.instagram.com/pedro_._duarte/",
+  ]);
   //States for dimensions
-  const [maze_width, setWidth] = useState(null);
-  const [maze_height, setHeight] = useState(null);
+  const [maze_width] = useState(700);
+  const [maze_height] = useState(700);
   //State for pos
   const [elementsPos] = useState(Array(num_images).fill(null));
   const [clear, setClear] = useState(false);
@@ -44,33 +50,6 @@ const Maze = () => {
           .map((_, j) => new Cell(i, j))
       )
   );
-
-  // Set maze dimensions
-  useEffect(() => {
-    const appElement = document.querySelector(".Maze");
-    let resizeTimer;
-    const updateWidth = () => {
-      clearTimeout(resizeTimer);
-
-      resizeTimer = setTimeout(() => {
-        const computedWidth = Math.floor(
-          parseFloat(getComputedStyle(appElement).width)
-        );
-        const computedHeight = Math.floor(
-          parseFloat(getComputedStyle(appElement).height)
-        );
-        setWidth(computedWidth);
-        setHeight(computedHeight);
-      }, 100);
-    };
-
-    updateWidth();
-    window.addEventListener("resize", updateWidth);
-
-    return () => {
-      window.removeEventListener("resize", updateWidth);
-    };
-  }, []);
 
   // Set maze and limits to correct state
   useEffect(() => {
@@ -220,7 +199,6 @@ const Maze = () => {
 
     function startDrawing(event) {
       isDrawing = true;
-      
 
       var x_coord = Math.floor(getX(event) / cellWidth);
       var y_coord = Math.floor(getY(event) / cellHeight);
@@ -292,8 +270,7 @@ const Maze = () => {
 
     function stopDrawing(event) {
       isDrawing = false;
-    if (!start_begin) {
-
+      if (!start_begin) {
         return;
       }
       context.lineTo(getX(event), getY(event));
@@ -306,12 +283,12 @@ const Maze = () => {
       var y_coord = Math.floor(y / cellHeight);
       console.log(x_coord, y_coord);
       elementsPos.forEach((element, index) => {
-        if(index !== 0){
-            if (element.x === x_coord && element.y === y_coord) {
-                console.log("open");
-                console.log(url[index]);
-                window.open(url[index], "_blank", "noreferrer");
-            }
+        if (index !== 0) {
+          if (element.x === x_coord && element.y === y_coord) {
+            console.log("open");
+            console.log(url[index]);
+            window.open(url[index], "_blank", "noreferrer");
+          }
         }
       });
       start_begin = false;
@@ -363,8 +340,7 @@ const Maze = () => {
         img.src = images[index];
 
         img.onload = function () {
-          context.drawImage(img, x, y, cellWidth - 4, cellHeight-4);
-
+          context.drawImage(img, x, y, cellWidth - 4, cellHeight - 4);
         };
         context.closePath();
       }
@@ -405,7 +381,11 @@ const Maze = () => {
     }
   }, [clear]);
 
-  return <canvas ref={canvasRef} width={maze_width} height={maze_height} />;
+  return (
+    <div>
+      <canvas ref={canvasRef} width={maze_width} height={maze_height} />
+    </div>
+  );
 };
 
 export default Maze;

@@ -4,12 +4,13 @@ import Left from "./LeftPart/Left";
 
 function App() {
   return (
-    <div className="Container">
-      <div className="App">
+    <div className="App">
+      <div className="container">
         <div className="Maze">
           <Maze />
         </div>
-        <div className="Left">
+
+        <div className="information">
           <Left />
         </div>
       </div>
