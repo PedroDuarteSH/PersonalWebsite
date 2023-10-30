@@ -1,17 +1,17 @@
 import "./App.css";
 import Maze from "./Maze/Maze";
-import Left from "./LeftPart/Left";
+import Information from "./Information/Information";
 
 function App() {
   return (
     <div className="App">
       <div className="container">
-        <div className="Maze">
+        <div className="Maze" id="Maze">
           <Maze />
         </div>
 
         <div className="information">
-          <Left />
+          <Information />
         </div>
       </div>
     </div>

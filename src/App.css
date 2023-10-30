@@ -1,16 +1,20 @@
 
 @font-face {
-  font-family: 'MazeLine';
-  
+  font-family: 'MazeLine'; 
   src: local('zlabyrinths-eye-fs'), url(./fonts/zlabyrinths-eye-fs.ttf) format('truetype');
 }
+
+@font-face {
+    font-family: 'Aldrich';
+    src: local('Aldrich-Regular'), ('./fonts/Aldrich-Regular.ttf') format('truetype');
+}
+
 
 .App {
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-
     font: 1em "MazeLine";
 }
 
@@ -29,4 +33,3 @@
     flex-direction: row;
     align-self: end;
 }
-
