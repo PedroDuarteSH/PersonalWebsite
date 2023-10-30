@@ -158,13 +158,16 @@ const Maze = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-
+    let touch_start = false;
+    let touch_end = false;
     // Set drawing properties (color, line width, etc.) here
     context.strokeStyle = "black";
     context.lineWidth = 2;
 
     let isDrawing = false;
     let start_begin = false;
+
+
     function getX(event) {
       if (
         event.type === "mousedown" ||
@@ -173,7 +176,14 @@ const Maze = () => {
       ) {
         return event.clientX - canvas.offsetLeft;
       }
-      return event.touches[0].clientX - canvas.offsetLeft;
+      if(
+        event.type === "touchstart" ||
+        event.type === "touchmove"
+      ){
+        return event.touches[0].clientX - canvas.offsetLeft;
+      }
+
+      return event.changedTouches[0].clientX - canvas.offsetLeft;
     }
 
     function getY(event) {
@@ -184,7 +194,15 @@ const Maze = () => {
       ) {
         return event.clientY - canvas.offsetTop;
       }
-      return event.touches[0].clientY - canvas.offsetTop;
+
+      if(
+        event.type === "touchstart" ||
+        event.type === "touchmove"
+      ){
+        return event.touches[0].clientY - canvas.offsetTop;
+      }
+
+      return event.changedTouches[0].clientY - canvas.offsetTop;
     }
 
     function setLastFunction(x, y) {
@@ -229,6 +247,7 @@ const Maze = () => {
         context.stroke();
         return;
       }
+      console.log(x, y);  
 
       var dif_x = last.x - x;
       var dif_y = last.y - y;
@@ -295,16 +314,67 @@ const Maze = () => {
       context.closePath();
       console.log("stop");
       setClear(true);
+      console.log("stop");
     }
 
     canvas.addEventListener("mousedown", startDrawing);
     canvas.addEventListener("mousemove", draw);
     canvas.addEventListener("mouseup", stopDrawing);
 
+    canvas.addEventListener("touchstart", (event) => {
+      
+      if(!isDrawing){
+        startDrawing(event)
+      }}
+    );
+
+    canvas.addEventListener("touchmove", (event) => {
+    
+          draw(event)
+      
+    }
+    );
+
+    canvas.addEventListener("touchend", (event) => {
+      if(isDrawing){
+        isDrawing = false;
+        stopDrawing(event);
+
+      }
+      
+    }
+    );
+
+
     return () => {
       canvas.removeEventListener("mousedown", startDrawing);
       canvas.removeEventListener("mousemove", draw);
       canvas.removeEventListener("mouseup", stopDrawing);
+
+      canvas.removeEventListener("touchstart",  (event) => {
+        console.log(event)
+        
+        startDrawing(event)
+      }
+      );
+
+      canvas.removeEventListener("touchmove",  (event) => {
+        
+        console.log(event)
+        if(event.touches.lenght > 0){
+            draw(event)
+        }
+      }
+      );
+
+      canvas.removeEventListener("touchend", (event) => {
+        if(isDrawing){
+          isDrawing = false;
+          stopDrawing(event);
+  
+        }}
+      );
+
     };
   }, [maze, cellWidth, cellHeight, maze_height, elementsPos, limits, clear]);
 
@@ -325,7 +395,9 @@ const Maze = () => {
   }, [maze, maze_height, maze_width, cellWidth, cellHeight]);
 
   useEffect(() => {
+    console.log(clear)
     if (clear) {
+      
       const canvas = canvasRef.current;
       const context = canvas.getContext("2d");
       context.strokeStyle = "black";
