@@ -237,14 +237,12 @@ const Maze = ({ database }) => {
     }
 
     function startDrawing(event) {
-      console.log("startDrawing");
-      console.log(event);
+
       lines = [];
       isDrawing = true;
       context.strokeStyle = `rgba(${r},${g},${b}, 0.1)`;
       var x_coord = Math.floor(getX(event) / cellWidth);
       var y_coord = Math.floor(getY(event) / cellHeight);
-      console.log(x_coord, y_coord);
       if (x_coord === elementsPos[0].x && y_coord === elementsPos[0].y) {
         start_begin = true;
       }
@@ -373,7 +371,6 @@ const Maze = ({ database }) => {
 
     function drawPreviousLines() {
       lines.forEach((element) => {
-        console.log(element);
         context.beginPath();
         context.strokeStyle = element.color;
         context.moveTo(element.lines[0][0], element.lines[0][1]);
