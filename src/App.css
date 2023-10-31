@@ -28,7 +28,8 @@
 }
 
 .information {
-    padding-left: 20px;
+    border-left: 2px solid black;
+    margin-left: 20px;
     align-items: start;
     flex-direction: row;
     align-self: end;
