@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import { getDatabase, ref, set, push, query, limitToFirst, get } from "firebase/database";
 import Cell from "./Cell";
 import { useRef } from "react";
 import Start from "../images/start.png";
@@ -7,11 +7,31 @@ import Facebook from "../images/facebook.png";
 import Linkdin from "../images/linkdin.png";
 import GitHub from "../images/github.png";
 import Instagram from "../images/instagram.png";
-const Maze = () => {
+import "./Maze.css";
+
+const Maze = ({ database }) => {
   // Maze Settings
   const num_rows = 20;
   const num_cols = 20;
   const num_images = 5;
+
+  //Get lines from database
+  const linesDBRef = ref(database, "lines");
+  const linesQuery = query(linesDBRef, limitToFirst(1000));
+  const [lines, setLines] = useState(null);
+  get(linesQuery).then((snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const dataArray = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
+      setLines(dataArray);
+    } else {
+      console.log("No data available");
+    }
+  }
+  ).catch((error) => {
+    console.error(error);
+  }
+  );
 
   const [images] = useState([Start, Facebook, Linkdin, GitHub, Instagram]);
   const [url] = useState([
@@ -33,11 +53,13 @@ const Maze = () => {
   var last = { x: 0, y: 0 };
 
   //State for cell
-  const [cellWidth, setCellWidth] = useState(maze_width / num_cols);
-  const [cellHeight, setCellHeight] = useState(maze_height / num_rows);
-
+  const [cellWidth, setCellWidth] = useState(Math.floor(maze_width / num_cols));
+  const [cellHeight, setCellHeight] = useState(
+    Math.floor(maze_height / num_rows)
+  );
   //State for canvas
   const canvasRef = useRef(null);
+  const background = useRef(null);
 
   //State for maze and its limits
   const [limits, setLimits] = useState(null);
@@ -50,6 +72,9 @@ const Maze = () => {
           .map((_, j) => new Cell(i, j))
       )
   );
+
+
+
 
   // Set maze and limits to correct state
   useEffect(() => {
@@ -143,11 +168,14 @@ const Maze = () => {
 
   // Set elements positions
   useEffect(() => {
+    let x = Math.floor(Math.random() * num_cols);
+    let y = Math.floor(Math.random() * num_rows);
+    let repeated = false;
     var i = 0;
     while (i < num_images) {
-      var x = Math.floor(Math.random() * num_cols);
-      var y = Math.floor(Math.random() * num_rows);
-      var repeated = false;
+      x = Math.floor(Math.random() * num_cols);
+      y = Math.floor(Math.random() * num_rows);
+      repeated = false;
 
       elementsPos.forEach((element) => {
         if (element !== null) {
@@ -167,6 +195,8 @@ const Maze = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
+    const rect = canvas.getBoundingClientRect();
+    var lines = [];
 
     // Set drawing properties (color, line width, etc.) here
     context.strokeStyle = "black";
@@ -174,45 +204,25 @@ const Maze = () => {
 
     let isDrawing = false;
     let start_begin = false;
-    let [r, g, b] = [Math.random() * 255, Math.random() * 255, Math.random() * 255];
+    let [r, g, b] = [
+      Math.random() * 255,
+      Math.random() * 255,
+      Math.random() * 255,
+    ];
 
     //Prevent white color
-    while(r > 200 && g > 200 && b > 200){
+    while (r > 200 && g > 200 && b > 200) {
       r = Math.random() * 255;
       g = Math.random() * 255;
       b = Math.random() * 255;
     }
-    
-    
-    function getX(event) {
-      if (
-        event.type === "mousedown" ||
-        event.type === "mousemove" ||
-        event.type === "mouseup"
-      ) {
-        return event.clientX - canvas.offsetLeft;
-      }
-      if (event.type === "touchstart" || event.type === "touchmove") {
-        return event.touches[0].clientX - canvas.offsetLeft;
-      }
 
-      return event.changedTouches[0].clientX - canvas.offsetLeft;
+    function getX(event) {
+      return event.clientX - rect.left;
     }
 
     function getY(event) {
-      if (
-        event.type === "mousedown" ||
-        event.type === "mousemove" ||
-        event.type === "mouseup"
-      ) {
-        return event.clientY - canvas.offsetTop;
-      }
-
-      if (event.type === "touchstart" || event.type === "touchmove") {
-        return event.touches[0].clientY - canvas.offsetTop;
-      }
-
-      return event.changedTouches[0].clientY - canvas.offsetTop;
+      return event.clientY - rect.top;
     }
 
     function setLastFunction(x, y) {
@@ -221,16 +231,20 @@ const Maze = () => {
     }
 
     function line(x, y) {
+      lines.push([x, y]);
       context.lineTo(x, y);
       context.stroke();
     }
 
     function startDrawing(event) {
+      console.log("startDrawing");
+      console.log(event);
+      lines = [];
       isDrawing = true;
-
+      context.strokeStyle = `rgba(${r},${g},${b}, 0.1)`;
       var x_coord = Math.floor(getX(event) / cellWidth);
       var y_coord = Math.floor(getY(event) / cellHeight);
-
+      console.log(x_coord, y_coord);
       if (x_coord === elementsPos[0].x && y_coord === elementsPos[0].y) {
         start_begin = true;
       }
@@ -244,8 +258,6 @@ const Maze = () => {
     }
 
     function draw(event) {
-      console.log(r, g, b)
-      context.strokeStyle = `rgb(${r},${g},${b})`;
       if (!isDrawing) return;
       var x_coord = getX(event);
       var y_coord = getY(event);
@@ -307,38 +319,35 @@ const Maze = () => {
       var x = getX(event);
       var y = getY(event);
 
-      console.log(x, y);
-      console.log(elementsPos);
       var x_coord = Math.floor(x / cellWidth);
       var y_coord = Math.floor(y / cellHeight);
-      console.log(x_coord, y_coord);
       elementsPos.forEach((element, index) => {
         if (index !== 0) {
           if (element.x === x_coord && element.y === y_coord) {
-            console.log("open");
-            console.log(url[index]);
+            const newLinesReg = push(linesDBRef);
+            set(newLinesReg, {
+              lines: lines,
+              color: `rgba(${r},${g},${b}, 0.1)`,
+            });
+            
+
             window.open(url[index], "_blank", "noreferrer");
           }
         }
       });
       start_begin = false;
       context.closePath();
-      console.log("stop");
       setClear(true);
-      console.log("stop");
     }
 
     canvas.addEventListener("mousedown", startDrawing);
     canvas.addEventListener("mousemove", draw);
     canvas.addEventListener("mouseup", stopDrawing);
 
-
-
     return () => {
       canvas.removeEventListener("mousedown", startDrawing);
       canvas.removeEventListener("mousemove", draw);
       canvas.removeEventListener("mouseup", stopDrawing);
-
     };
   }, [maze, cellWidth, cellHeight, maze_height, elementsPos, limits, clear]);
 
@@ -359,13 +368,33 @@ const Maze = () => {
   }, [maze, maze_height, maze_width, cellWidth, cellHeight]);
 
   useEffect(() => {
-    console.log(clear);
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+
+    function drawPreviousLines() {
+      lines.forEach((element) => {
+        console.log(element);
+        context.beginPath();
+        context.strokeStyle = element.color;
+        context.moveTo(element.lines[0][0], element.lines[0][1]);
+        element.lines.forEach((line) => {
+          context.lineTo(line[0], line[1]);
+        });
+        context.stroke();
+        context.closePath();
+      });
+    }
+
+
     if (clear) {
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
+      if(lines === null){
+        setClear(true)
+        return;
+      }
+      context.clearRect(0, 0, maze_width, maze_height);
+      drawPreviousLines();
       context.strokeStyle = "black";
       context.lineWidth = 2;
-      context.clearRect(0, 0, maze_width, maze_height);
       for (let index = 0; index < num_images; index++) {
         const element = elementsPos[index];
         context.beginPath();
@@ -414,11 +443,13 @@ const Maze = () => {
 
       setClear(false);
     }
-  }, [clear]);
+  }, [clear, lines]);
 
   return (
-    <div>
+    <div className="canvas">
+      <canvas ref={background} width={maze_width} height={maze_height} />
       <canvas ref={canvasRef} width={maze_width} height={maze_height} />
+      
     </div>
   );
 };

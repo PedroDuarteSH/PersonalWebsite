@@ -1,4 +1,13 @@
-.Maze{
-    width: 100%;
-    height: 100%;
-}
+.canvas{
+    position: relative; /* Create a positioning context for child elements */
+    height: 700px;
+    width: 700px;
+  }
+  
+  canvas {
+    position: absolute; /* Position the canvases absolutely within the container */
+    top: 0;
+    left: 0;
+  }
+  
+  

@@ -33,3 +33,20 @@
     flex-direction: row;
     align-self: end;
 }
+
+.Maze{
+    height: 700px;
+}
+@media (max-width: 768px) {
+    .container{
+        scale: 0.45;
+        flex-direction: column;
+    }
+    .information {
+        border-left: 2px solid black;
+        padding-left: 0px;
+        align-items: center;
+        flex-direction: column;
+        align-self: center;
+    }
+}
