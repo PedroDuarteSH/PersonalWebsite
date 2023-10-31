@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Personal Website",
+  "name": "Personal Website of Pedro Henriques. Made in React.js for a academic project of Desenvolvimento Web.",
   "icons": [
     {
       "src": "favicon.ico",
