@@ -21,7 +21,7 @@
 }
 
 .Info {
-  border-left: 2px solid black;
+  
   padding-left: 10px;
   width: 700px;
   display: flex;
@@ -66,4 +66,11 @@
     font-size: 30px;
     border-radius: 20px;
     font: 2em "JetBrains Mono";
+  }
+
+
+  @media (max-width: 768px) {
+    .Info{
+      padding-left: 0px;
+    }
   }

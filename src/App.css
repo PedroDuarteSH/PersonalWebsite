@@ -39,12 +39,13 @@
 }
 @media (max-width: 768px) {
     .container{
-        scale: 0.45;
+        height: 100vh;
+        scale: 0.46;
         flex-direction: column;
     }
     .information {
-        border-left: 2px solid black;
-        padding-left: 0px;
+        border-top: 2px solid black;
+        margin-top: 40px;
         align-items: center;
         flex-direction: column;
         align-self: center;
