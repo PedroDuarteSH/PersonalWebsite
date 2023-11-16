@@ -1,7 +1,5 @@
 
 class Cell{
- 
-
     constructor(x, y) {
         // 0 = no_border, 1 = border, 2 = Exit, -1 = Start 3 = end
         this.border = {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, set, push, query, limitToFirst, get } from "firebase/database";
+import { ref, set, push, query, limitToFirst, get } from "firebase/database";
 import Cell from "./Cell";
 import { useRef } from "react";
 import Start from "../images/start.png";
@@ -7,8 +7,8 @@ import Facebook from "../images/facebook.png";
 import Linkdin from "../images/linkdin.png";
 import GitHub from "../images/github.png";
 import Instagram from "../images/instagram.png";
-import "./Maze.css";
 
+import "animate.css";
 const Maze = ({ database }) => {
   // Maze Settings
   const num_rows = 20;
@@ -19,19 +19,23 @@ const Maze = ({ database }) => {
   const linesDBRef = ref(database, "lines");
   const linesQuery = query(linesDBRef, limitToFirst(1000));
   const [lines, setLines] = useState(null);
-  get(linesQuery).then((snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-      const dataArray = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
-      setLines(dataArray);
-    } else {
-      console.log("No data available");
-    }
-  }
-  ).catch((error) => {
-    console.error(error);
-  }
-  );
+  
+  get(linesQuery)
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const dataArray = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setLines(dataArray);
+      } else {
+        console.log("No data available");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 
   const [images] = useState([Start, Facebook, Linkdin, GitHub, Instagram]);
   const [url] = useState([
@@ -72,9 +76,6 @@ const Maze = ({ database }) => {
           .map((_, j) => new Cell(i, j))
       )
   );
-
-
-
 
   // Set maze and limits to correct state
   useEffect(() => {
@@ -237,7 +238,6 @@ const Maze = ({ database }) => {
     }
 
     function startDrawing(event) {
-
       lines = [];
       isDrawing = true;
       context.strokeStyle = `rgba(${r},${g},${b}, 0.1)`;
@@ -327,7 +327,6 @@ const Maze = ({ database }) => {
               lines: lines,
               color: `rgba(${r},${g},${b}, 0.1)`,
             });
-            
 
             window.open(url[index], "_blank", "noreferrer");
           }
@@ -382,10 +381,9 @@ const Maze = ({ database }) => {
       });
     }
 
-
     if (clear) {
-      if(lines === null){
-        setClear(true)
+      if (lines === null) {
+        setClear(true);
         return;
       }
       context.clearRect(0, 0, maze_width, maze_height);
@@ -442,13 +440,7 @@ const Maze = ({ database }) => {
     }
   }, [clear, lines]);
 
-  return (
-    <div className="canvas">
-      <canvas ref={background} width={maze_width} height={maze_height} />
-      <canvas ref={canvasRef} width={maze_width} height={maze_height} />
-      
-    </div>
-  );
+  return <canvas ref={canvasRef} width={maze_width} height={maze_height} />;
 };
 
 export default Maze;

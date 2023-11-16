@@ -4,11 +4,22 @@ import Information from "./Information/Information";
 
 import { initializeApp, firebase } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getDatabase, ref, set  } from "firebase/database";
+import { getDatabase, ref, set } from "firebase/database";
+
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import useMediaQuery from '@mui/material/useMediaQuery';
+
+import "animate.css";
+
 function App() {
   // Your web app's Firebase configuration
   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  
   const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
     authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
@@ -18,10 +29,7 @@ function App() {
     appId: "1:612797353750:web:741e76bb6a29d072bcca37",
     measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
     databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
-  }
-
-  
-  
+  };
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
@@ -30,19 +38,42 @@ function App() {
   // Initialize Realtime Database and get a reference to the service
   const database = getDatabase(app);
 
+  var state = useMediaQuery('(min-width: 768px)');
+  console.log(state);
+  const [open, setOpen] = React.useState(!state);
 
+  console.log(open);
 
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <div className="App">
       <div className="container">
-        <div className="Maze" id="Maze">
-          <Maze database={database}/>
+        <div className="Maze animate__animated " id="Maze">
+          <Maze database={database} />
         </div>
 
-        <div className="information">
+        <div className="information animate__animated animate__backInRight">
           <Information />
         </div>
+
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle id="alert-dialog-title">
+            {"Mobile Devices Compatibility"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              The website interaction is not compatible with mobile devices, please use a computer to interact with the maze.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} autoFocus>
+              Accept
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </div>
   );
