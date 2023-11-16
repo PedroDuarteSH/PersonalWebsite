@@ -42,7 +42,7 @@
 @media (max-width: 768px) {
     .container{
         height: 100vh;
-        scale: 0.4555;
+        scale: 0.40;
         flex-direction: column;
     }
     .information {
