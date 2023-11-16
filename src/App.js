@@ -38,11 +38,9 @@ function App() {
   // Initialize Realtime Database and get a reference to the service
   const database = getDatabase(app);
 
-  var state = useMediaQuery('(min-width: 768px)');
-  console.log(state);
-  const [open, setOpen] = React.useState(!state);
+  var state = useMediaQuery('(max-width: 768px)');
 
-  console.log(open);
+  const [open, setOpen] = React.useState(state);
 
   const handleClose = () => {
     setOpen(false);
@@ -51,7 +49,7 @@ function App() {
   return (
     <div className="App">
       <div className="container">
-        <div className="Maze animate__animated " id="Maze">
+        <div className="Maze" id="Maze">
           <Maze database={database} />
         </div>
 
@@ -59,7 +57,9 @@ function App() {
           <Information />
         </div>
 
-        <Dialog open={open} onClose={handleClose}>
+        
+      </div>
+      <Dialog open={open} onClose={handleClose}>
           <DialogTitle id="alert-dialog-title">
             {"Mobile Devices Compatibility"}
           </DialogTitle>
@@ -74,7 +74,6 @@ function App() {
             </Button>
           </DialogActions>
         </Dialog>
-      </div>
     </div>
   );
 }
