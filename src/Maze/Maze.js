@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ref, set, push, onValue } from "firebase/database";
+import { ref, set, push, get, limitToFirst, query } from "firebase/database";
 import Cell from "./Cell";
 import { useRef } from "react";
 import Start from "../images/start.png";
@@ -45,11 +45,15 @@ const Maze = ({ database }) => {
 
   //Get lines from database
   const linesDBRef = ref(database, "lines");
+  const linesQuery = query(linesDBRef, limitToFirst(1000));
   //State for get lines from database
   const [lines, setLines] = useState(null);
+  
   useEffect(() => {
-    const fetchData = () => {
-      const linesListener = onValue(linesDBRef, (snapshot) => {
+    const fetchData = async () => {
+      try {
+        const snapshot = await get(linesQuery);
+
         if (snapshot.exists()) {
           const data = snapshot.val();
           const dataArray = Object.keys(data).map((key) => ({
@@ -57,16 +61,16 @@ const Maze = ({ database }) => {
             ...data[key],
           }));
           setLines(dataArray);
-          console.log('Data updated in real-time');
+          console.log('Get data from database');
           setClear(true);
         } else {
           console.log('No data available');
         }
-      });
-
-      // Cleanup the listener when the component unmounts
+      } catch (error) {
+        console.error(error);
+      }
       return () => {
-        linesListener();
+        fetchData();
       };
     };
 
@@ -339,6 +343,7 @@ const Maze = ({ database }) => {
       elementsPos.forEach((element, index) => {
         if (index !== 0) {
           if (element.x === x_coord && element.y === y_coord) {
+
             const newLinesReg = push(linesDBRef);
             set(newLinesReg, {
               lines: lines,
