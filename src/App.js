@@ -2,9 +2,8 @@ import "./App.css";
 import Maze from "./Maze/Maze";
 import Information from "./Information/Information";
 
-import { initializeApp, firebase } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getDatabase, ref, set } from "firebase/database";
+import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
 
 import * as React from 'react';
 import Button from '@mui/material/Button';
@@ -26,14 +25,14 @@ function App() {
     projectId: "personalwebsite-aa1ff",
     storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    appId: "1:612797353750:web:741e76bb6a29d072bcca37",
+    appId: "1:429586287934:web:7b52a255c4c89fa22fb06f",
     measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
     databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
   };
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+
 
   // Initialize Realtime Database and get a reference to the service
   const database = getDatabase(app);

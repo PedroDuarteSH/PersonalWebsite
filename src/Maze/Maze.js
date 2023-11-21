@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ref, set, push, query, limitToFirst, get } from "firebase/database";
+import { ref, set, push, onValue } from "firebase/database";
 import Cell from "./Cell";
 import { useRef } from "react";
 import Start from "../images/start.png";
@@ -10,60 +10,73 @@ import Instagram from "../images/instagram.png";
 
 import "animate.css";
 const Maze = ({ database }) => {
+
+
+  //State for canvas
+  const canvasRef = useRef(null);
+
+  //State for clear canvas
+  const [clear, setClear] = useState(false);
+  
   // Maze Settings
   const num_rows = 20;
   const num_cols = 20;
   const num_images = 5;
-
-  //Get lines from database
-  const linesDBRef = ref(database, "lines");
-  const linesQuery = query(linesDBRef, limitToFirst(1000));
-  const [lines, setLines] = useState(null);
+  //Dimensions
+  var maze_width = 700;
+  var maze_height = 700;
+  //Cell dimensions
+  var cellWidth = Math.floor(maze_width / num_cols);
+  var cellHeight = Math.floor(maze_height / num_rows);
   
-  get(linesQuery)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const dataArray = Object.keys(data).map((key) => ({
-          id: key,
-          ...data[key],
-        }));
-        setLines(dataArray);
-      } else {
-        console.log("No data available");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-
-  const [images] = useState([Start, Facebook, Linkdin, GitHub, Instagram]);
-  const [url] = useState([
+ 
+  //Images for elements
+  var images = [Start, Facebook, Linkdin, GitHub, Instagram];
+  var url = [
     null,
     "https://www.facebook.com/PDSH123/",
     "https://www.linkedin.com/in/pedroduartesh/",
     "https://github.com/pedroDuarteSH/",
     "https://www.instagram.com/pedro_._duarte/",
-  ]);
-
-  //States for dimensions
-  const [maze_width] = useState(700);
-  const [maze_height] = useState(700);
+  ];
   //State for pos
   const [elementsPos] = useState(Array(num_images).fill(null));
-  const [clear, setClear] = useState(false);
+
+
+  //Get lines from database
+  const linesDBRef = ref(database, "lines");
+  //State for get lines from database
+  const [lines, setLines] = useState(null);
+  useEffect(() => {
+    const fetchData = () => {
+      const linesListener = onValue(linesDBRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const dataArray = Object.keys(data).map((key) => ({
+            id: key,
+            ...data[key],
+          }));
+          setLines(dataArray);
+          console.log('Data updated in real-time');
+          setClear(true);
+        } else {
+          console.log('No data available');
+        }
+      });
+
+      // Cleanup the listener when the component unmounts
+      return () => {
+        linesListener();
+      };
+    };
+
+    fetchData();
+  }, []); 
+
 
   //last.x variable
   var last = { x: 0, y: 0 };
 
-  //State for cell
-  const [cellWidth, setCellWidth] = useState(Math.floor(maze_width / num_cols));
-  const [cellHeight, setCellHeight] = useState(
-    Math.floor(maze_height / num_rows)
-  );
-  //State for canvas
-  const canvasRef = useRef(null);
-  const background = useRef(null);
 
   //State for maze and its limits
   const [limits, setLimits] = useState(null);
@@ -148,6 +161,8 @@ const Maze = ({ database }) => {
         }
       });
     }
+
+
     randomizedDFS(Math.floor(num_rows / 2), 0);
     var limits = Array(num_rows)
       .fill(null)
@@ -243,6 +258,7 @@ const Maze = ({ database }) => {
       context.strokeStyle = `rgba(${r},${g},${b}, 0.1)`;
       var x_coord = Math.floor(getX(event) / cellWidth);
       var y_coord = Math.floor(getY(event) / cellHeight);
+
       if (x_coord === elementsPos[0].x && y_coord === elementsPos[0].y) {
         start_begin = true;
       }
@@ -251,8 +267,9 @@ const Maze = ({ database }) => {
       }
 
       setLastFunction(elementsPos[0].x, elementsPos[0].y);
-      context.beginPath();
       context.moveTo(getX(event), getY(event));
+      context.beginPath();
+      
     }
 
     function draw(event) {
@@ -325,7 +342,7 @@ const Maze = ({ database }) => {
             const newLinesReg = push(linesDBRef);
             set(newLinesReg, {
               lines: lines,
-              color: `rgba(${r},${g},${b}, 0.1)`,
+              color: `rgba(${r},${g},${b}, 0.2)`,
             });
 
             window.open(url[index], "_blank", "noreferrer");
@@ -346,29 +363,26 @@ const Maze = ({ database }) => {
       canvas.removeEventListener("mousemove", draw);
       canvas.removeEventListener("mouseup", stopDrawing);
     };
-  }, [maze, cellWidth, cellHeight, maze_height, elementsPos, limits, clear]);
+  }, [maze, elementsPos, limits, clear]);
 
   useEffect(() => {
-    if (maze_width === null || maze_height === null) {
-      return;
-    }
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-
-    setCellWidth(Math.floor(maze_width / num_cols));
-    setCellHeight(Math.floor(maze_height / num_rows));
-
-    // Set drawing properties (color, line width, etc.) here
     context.strokeStyle = "black"; // You can customize the stroke color
     context.lineWidth = 2; // You can customize the line width
     setClear(true);
-  }, [maze, maze_height, maze_width, cellWidth, cellHeight]);
+  }, [maze]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
 
     function drawPreviousLines() {
+      console.log("Draw");
+      console.log(lines);
+      if(lines === null || lines.length === 0){
+        return;
+      }
       lines.forEach((element) => {
         context.beginPath();
         context.strokeStyle = element.color;
@@ -382,12 +396,9 @@ const Maze = ({ database }) => {
     }
 
     if (clear) {
-      if (lines === null) {
-        setClear(true);
-        return;
-      }
       context.clearRect(0, 0, maze_width, maze_height);
       drawPreviousLines();
+      
       context.strokeStyle = "black";
       context.lineWidth = 2;
       for (let index = 0; index < num_images; index++) {
@@ -439,7 +450,6 @@ const Maze = ({ database }) => {
       setClear(false);
     }
   }, [clear, lines]);
-
   return <canvas ref={canvasRef} width={maze_width} height={maze_height} />;
 };
 
