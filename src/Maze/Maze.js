@@ -257,6 +257,10 @@ const Maze = ({ database }) => {
     }
 
     function startDrawing(event) {
+      if(event.button !== 0){
+        return;
+      }
+
       lines = [];
       isDrawing = true;
       context.strokeStyle = `rgba(${r},${g},${b}, 0.1)`;
@@ -343,6 +347,10 @@ const Maze = ({ database }) => {
       elementsPos.forEach((element, index) => {
         if (index !== 0) {
           if (element.x === x_coord && element.y === y_coord) {
+            console.log("I AM HERE")
+            
+
+
 
             const newLinesReg = push(linesDBRef);
             set(newLinesReg, {
